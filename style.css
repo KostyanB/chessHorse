@@ -1,0 +1,68 @@
+.container {
+    margin: 0 auto;
+    width: 320px;
+}
+.head {
+    display: flex;
+    justify-content: space-between;
+    vertical-align: center;
+    margin: 0 auto;
+    width: 320px;
+}
+.chess-field {
+    width: 320px;
+    height: 320px;
+    border: 1px solid black;
+    margin: 0 auto;
+}
+h2 {
+    text-align: center;
+    margin: 10px auto;
+}
+.head div>h2 {
+    display: flex;
+    vertical-align: center;
+}
+
+/* #chess-field::after {
+    content: "";
+    display: block;
+    clear: both;
+} */
+.chess-block {
+    width: 40px;
+    height: 40px;
+    float: left;
+}
+
+.bg-black {
+    background: #424242;
+}
+
+.horse {
+    width: 40px;
+    height: 40px;
+    background-size: contain;
+    background-image: url("./img/chess_horse_icon_188626.png");
+    cursor: pointer;
+    touch-action: none;
+}
+.active {
+    background-color: lightblue;
+}
+
+.possible {
+    background-color: lightgreen;
+}
+.droppable:hover {
+    background-color: green;
+    cursor: pointer;
+}
+
+.reset {
+    margin: 10px auto;
+    position: relative;
+    display: flex;
+    font-size: 20px;
+    padding: 5px 10px;
+}
