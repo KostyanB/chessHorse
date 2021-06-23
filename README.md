@@ -4,7 +4,7 @@
 
 ## О приложениии
 
-Демо на [Лошадью ходи...](https://kostyanb.github.io/chessHorse-site/).
+Демо на [Лошадью ходи...](https://kostyanb.github.io/chessHorse/).
 
 * Имитирует ходы шахматного Коня;
 * Перемещение по полю по клику или drag-and-drop;
@@ -30,7 +30,7 @@ My pet-project
 
 ## About App
 
-Demo at [Go horse...](https://kostyanb.github.io/chessHorse-site/).
+Demo at [Go horse...](https://kostyanb.github.io/chessHorse/).
 
 * Simulates moves of a chess Knight;
 * Moving around the field by clicking or drag-and-drop;

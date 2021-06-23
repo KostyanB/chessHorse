@@ -4,10 +4,7 @@ const chessField = document.querySelector('.chess-field'),
     resetBtn = document.querySelector('.reset'),
     horseLoad = document.querySelector('.horse-load');
 let  horse = document.querySelector('.horse');
-// координаты при загрузке
-const loadHorseX = horse.getBoundingClientRect().left,
-    loadHorseY = horse.getBoundingClientRect().top;
-    console.log(' loadHorseY: ',  loadHorseY);
+
 // массив x*y
 const createArr = (...args) => {
     let arr = [];
@@ -90,13 +87,12 @@ document.addEventListener('click', (e) => {
 
 // drag&drop
 horse.onpointerdown = (e) => {
+    horse.setPointerCapture(e.pointerId);
+    console.log('e.pointerId: ', e.pointerId);
+
     // координаты в начале перемещения
     const startHorseX = horse.getBoundingClientRect().left,
         startHorseY = horse.getBoundingClientRect().top;
-        console.log('startHorseY : ', startHorseY );
-        console.log('startHorseX: ', startHorseX);
-
-
     //смещение
     let shiftX = e.clientX - startHorseX;
     let shiftY = e.clientY - startHorseY;
@@ -117,19 +113,14 @@ horse.onpointerdown = (e) => {
 
     //возврат на место
     const reMoveHorse = () => {
-        // document.querySelector('.active').append(horse)
         horse.style.left = `${startHorseX}px`;
         horse.style.top = `${startHorseY}px`;
-        const starHorseX = horse.getBoundingClientRect().left,
-        starHorseY = horse.getBoundingClientRect().top;
-        console.log('X: ', starHorseX);
-        console.log('Y: ', starHorseY);
     }
 
     // потенциальная цель переноса, над которой мы пролетаем прямо сейчас
     let currentDroppable = null;
     // движение пo drag&drop
-    function horseMove(e) {
+    const horseMove = (e) => {
         moveAt(e.pageX, e.pageY);
         // прячем коня чтобы б/доступ к потенц цели
         horse.hidden = true;
@@ -174,3 +165,22 @@ const enterDroppable = (elem) => elem.style.background = 'green';
 const leaveDroppable = (elem) => elem.style.background = '';
 // preventDefault for drag&drop
 horse.ondragstart = () => false;
+
+// horse.onpointerdown = log;
+//     horse.onpointerup = log;
+//     horse.onpointermove = log;
+//     horse.onpointercancel = log;
+
+//     let lastEventType;
+//     let n = 1;
+//     function log(event) {
+//       if (lastEventType == event.type) {
+//         n++;
+//         text.value = text.value.replace(/.*\n$/, `${event.type} * ${n}\n`);
+//         return;
+//       }
+//       lastEventType = event.type;
+//       n = 1;
+//       text.value += event.type + '\n';
+//       text.scrollTop = 1e9;
+//     }
