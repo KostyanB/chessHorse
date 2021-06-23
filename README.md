@@ -21,6 +21,7 @@
 * Drag-and-drop;
 * HTML CSS;
 * Возможность масштабировать для других шахматных фигур.
+* 2 версии: через drag/drop события и через события указателя.
 
 ***
 Eng
@@ -47,3 +48,4 @@ Demo at [Go horse...](https://kostyanb.github.io/chessHorse/).
 * Drag-and-drop;
 * HTML CSS;
 * Ability to scale for other chess pieces.
+* 2 versions: via drag / drop events and via pointer events.

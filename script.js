@@ -8,14 +8,14 @@ let  horse = document.querySelector('.horse');
 // массив x*y
 const createArr = (...args) => {
     let arr = [];
-    const [xStart, xEnd, yStart, yEnd] = args
+    const [xStart, xEnd, yStart, yEnd] = args;
     for (let i = xStart; i <= xEnd; i++) {
         for (let k = yStart; k <= yEnd; k++) {
-            arr.push([i, k])
+            arr.push([i, k]);
         }
     }
     return arr;
-}
+};
 
 // массив возможных ходов коня
 const validHorseMove = createArr(-2, 2, -2, 2).filter(item =>
@@ -29,7 +29,7 @@ const showHorse = (x, y) => {
     moves.forEach(item => { // задаем классы
         const elem = document.querySelector(`.chess-block[data-x="${x + item[0]}"][data-y="${y + item[1]}"]`);
         elem.classList.add('droppable');
-        elem.classList.add('possible')
+        elem.classList.add('possible');
     });
 }
 
@@ -50,7 +50,7 @@ const resetBlocks = () => {
         item.classList.remove('possible');
     });
     document.querySelector('.active')?.classList.remove('active');
-}
+};
 
 // рисуем поле
 const drawField = () => {
@@ -61,11 +61,13 @@ const drawField = () => {
         const clone = block.cloneNode(true);
         clone.setAttribute('data-x', item[0]);
         clone.setAttribute('data-y', item[1]);
+        // clone.ondragover = () => false;
         ((item[0] + item[1]) % 2 === 0) || clone.classList.add('bg-black');
-        chessField.append(clone)
-    })
-}
-drawField()
+        chessField.append(clone);
+    });
+    chessField.ondragover = () => false;
+};
+drawField();
 
 // полный сброс
 const fullReset = () => {
@@ -80,15 +82,52 @@ const fullReset = () => {
 document.addEventListener('click', (e) => {
     const target = e.target;
     // при клике в пределах доски и разрешенный ход
-    if (target.classList.contains('chess-block') && target.classList.contains('droppable')) setHorse(target)
+    if (target.classList.contains('chess-block') && target.classList.contains('droppable')) setHorse(target);
     // сброс по ресет
-    if(target ===  resetBtn) fullReset()
+    if(target ===  resetBtn) fullReset();
 });
 
-// drag&drop
+//подсветка при переносе
+const enterDroppable = (elem) => elem.style.background = 'green';
+const leaveDroppable = (elem) => elem.style.background = '';
+
+// ------------------drag&drop with drag event---------------------------
+//****************************************************
+// показ куда можно поставить
+const showValidDrop = () => {
+    let currentDroppable = null;
+    const showDrop = (e) => {
+        const droppableElem = e.target.closest('.droppable');
+        // проверка на залет/вылет
+        if (currentDroppable != droppableElem) {
+            if (currentDroppable) { // "вылет" из droppable (удаляем подсветку)
+                leaveDroppable(currentDroppable);
+            }
+            currentDroppable = droppableElem;
+            if (currentDroppable) { // "влетаем" в droppable -> подсветка
+                enterDroppable(currentDroppable);
+            }
+        }
+    }
+    document.addEventListener('dragover', e => showDrop(e));
+}
+showValidDrop();
+
+// сброс в ячейку
+document.addEventListener('drop', e => {
+    const target = e.target;
+    if(target !== horse && target.closest('.droppable')) {
+        document.removeEventListener('dragover', e => showDrop);
+        leaveDroppable(e.target)
+        setHorse(e.target)
+    }
+});
+
+// --------------------drag&drop with pointer event-----------------------------
+//*********************************************************
+/*
 horse.onpointerdown = (e) => {
     horse.setPointerCapture(e.pointerId);
-    console.log('e.pointerId: ', e.pointerId);
 
     // координаты в начале перемещения
     const startHorseX = horse.getBoundingClientRect().left,
@@ -117,8 +156,9 @@ horse.onpointerdown = (e) => {
         horse.style.top = `${startHorseY}px`;
     }
 
-    // потенциальная цель переноса, над которой мы пролетаем прямо сейчас
+    // потенциальная цель переноса, над которой летим сейчас
     let currentDroppable = null;
+
     // движение пo drag&drop
     const horseMove = (e) => {
         moveAt(e.pageX, e.pageY);
@@ -154,33 +194,12 @@ horse.onpointerdown = (e) => {
         horse.onpointerup = null;
         if(currentDroppable !== null) {
             setHorse(currentDroppable);
-            leaveDroppable(currentDroppable)
+            leaveDroppable(currentDroppable);
         } else {
             reMoveHorse();
         }
     };
 };
-// выделение цветом при переносе
-const enterDroppable = (elem) => elem.style.background = 'green';
-const leaveDroppable = (elem) => elem.style.background = '';
 // preventDefault for drag&drop
 horse.ondragstart = () => false;
-
-// horse.onpointerdown = log;
-//     horse.onpointerup = log;
-//     horse.onpointermove = log;
-//     horse.onpointercancel = log;
-
-//     let lastEventType;
-//     let n = 1;
-//     function log(event) {
-//       if (lastEventType == event.type) {
-//         n++;
-//         text.value = text.value.replace(/.*\n$/, `${event.type} * ${n}\n`);
-//         return;
-//       }
-//       lastEventType = event.type;
-//       n = 1;
-//       text.value += event.type + '\n';
-//       text.scrollTop = 1e9;
-//     }
+*/
