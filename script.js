@@ -117,7 +117,7 @@ horse.onpointerdown = (e) => {
         horse.style.left = `${startHorseX}px`;
         horse.style.top = `${startHorseY}px`;
     }
-    // moveAt(e.pageX, e.pageY);// Поееехали!
+    moveAt(e.pageX, e.pageY);// Поееехали!
     // подсветка при пролете
     let currentDroppable = null; // потенц. цель, над которой летим
     const showDroppable = (droppableBelow) => {
@@ -131,37 +131,57 @@ horse.onpointerdown = (e) => {
                 enterDroppable(currentDroppable);
             }
         }
-    }
+    };
+
     // движение пo drag&drop
     const horseMove = (e) => {
+        moveAt(posX, posY);// Поееехали!
         // прячем коня чтобы б/доступ к потенц цели
         horse.hidden = true;
-        let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+        let elemBelow;
+        elemBelow = document.elementFromPoint(posX, posY);
         horse.hidden = false;
-        // Поееехали!
-        moveAt(e.pageX, e.pageY);
         // у потенц. цели д/быть класс droppable
         let droppableBelow = elemBelow?.closest('.droppable');
-        // если clientX/clientY за окном, возврат на исходную
-        if (!elemBelow) {
-            reMoveHorse();
-            document.removeEventListener('pointermove', horseMove);
-        }
         showDroppable(droppableBelow);
     };
+    // получение координат
+    let posX, posY;
+    const handlePos = (e) => {
+        if((e.clientX)&&(e.clientY)) { // мышка
+            posX = e.clientX;
+            posY = e.clientY;
+        } else if(e.targetTouches) { // палец
+            posX = e.targetTouches[0].clientX;
+            posY = e.targetTouches[0].clientY;
+        }
+        horseMove();
+    };
+
     // двигаем коня при pointermove
-    document.addEventListener('pointermove', horseMove);
-    // отпускаем
-    horse.onpointerup = () => {
-        document.removeEventListener('pointermove', horseMove);
-        horse.onpointerup = null;
+    document.addEventListener('pointermove', handlePos);
+    document.addEventListener('touchmove', handlePos);
+
+    // сброс коня на поле при перетаскивании
+    const dropHorse = () => {
         if(currentDroppable !== null) {
-            setHorse(currentDroppable);
             leaveDroppable(currentDroppable);
+            setHorse(currentDroppable);
         } else {
             reMoveHorse();
         }
     };
+    horse.onpointerup = () => {
+        document.removeEventListener('pointermove', handlePos);
+        horse.onpointerup = null;
+        dropHorse();
+    };
+    document.addEventListener('touchend', e => {
+        if(e.target === horse) {
+            e.preventDefault();
+        e.target.click();
+        dropHorse();}
+    }, false);
 };
 // ------------------drag&drop with drag event---------------------------
 //****************************************************
