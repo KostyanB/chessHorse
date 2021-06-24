@@ -61,11 +61,10 @@ const drawField = () => {
         const clone = block.cloneNode(true);
         clone.setAttribute('data-x', item[0]);
         clone.setAttribute('data-y', item[1]);
-        // clone.ondragover = () => false;
         ((item[0] + item[1]) % 2 === 0) || clone.classList.add('bg-black');
         chessField.append(clone);
     });
-    chessField.ondragover = () => false;
+    // chessField.ondragover = () => false;
 };
 drawField();
 
@@ -90,9 +89,86 @@ document.addEventListener('click', (e) => {
 //подсветка при переносе
 const enterDroppable = (elem) => elem.style.background = 'green';
 const leaveDroppable = (elem) => elem.style.background = '';
+// preventDefault коню для drag&drop
+horse.ondragstart = () => false;
+// --------------------drag&drop with pointer event-----------------------------
+//*********************************************************
+horse.onpointerdown = (e) => {
+    // захват указателя
+    horse.setPointerCapture(e.pointerId);
+    // координаты в начале перемещения
+    const startHorseX = horse.getBoundingClientRect().left,
+        startHorseY = horse.getBoundingClientRect().top;
+    // смещение указателя при захвате
+    let shiftX = e.clientX - startHorseX,
+        shiftY = e.clientY - startHorseY;
+    // стили для отслеживания переноса
+    horse.style.position = 'absolute';
+    horse.style.zIndex = 1000;
+    document.body.append(horse);
 
+    // перенос на координаты c учитом сдвига относительно курсора
+    const moveAt = (pageX, pageY) => {
+        horse.style.left = `${pageX - shiftX}px`;
+        horse.style.top = `${pageY - shiftY}px`;
+    }
+    //возврат на исходную позицию
+    const reMoveHorse = () => {
+        horse.style.left = `${startHorseX}px`;
+        horse.style.top = `${startHorseY}px`;
+    }
+    // moveAt(e.pageX, e.pageY);// Поееехали!
+    // подсветка при пролете
+    let currentDroppable = null; // потенц. цель, над которой летим
+    const showDroppable = (droppableBelow) => {
+        if (currentDroppable != droppableBelow) {
+            // current=null -> за/вылетаем || below=null -> сейчас не над droppable
+            if (currentDroppable) { // вылет из droppable -> удаляем подсветку
+                leaveDroppable(currentDroppable);
+            }
+            currentDroppable = droppableBelow;
+            if (currentDroppable) { // "влетаем" в droppable -> подсветка
+                enterDroppable(currentDroppable);
+            }
+        }
+    }
+    // движение пo drag&drop
+    const horseMove = (e) => {
+        // прячем коня чтобы б/доступ к потенц цели
+        horse.hidden = true;
+        let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+        horse.hidden = false;
+        // Поееехали!
+        moveAt(e.pageX, e.pageY);
+        // у потенц. цели д/быть класс droppable
+        let droppableBelow = elemBelow?.closest('.droppable');
+        // если clientX/clientY за окном, возврат на исходную
+        if (!elemBelow) {
+            reMoveHorse();
+            document.removeEventListener('pointermove', horseMove);
+        }
+        showDroppable(droppableBelow);
+    };
+    // двигаем коня при pointermove
+    document.addEventListener('pointermove', horseMove);
+    // отпускаем
+    horse.onpointerup = () => {
+        document.removeEventListener('pointermove', horseMove);
+        horse.onpointerup = null;
+        if(currentDroppable !== null) {
+            setHorse(currentDroppable);
+            leaveDroppable(currentDroppable);
+        } else {
+            reMoveHorse();
+        }
+    };
+};
 // ------------------drag&drop with drag event---------------------------
 //****************************************************
+/*
+horse.ondragstart = (e) => {
+    e.dataTransfer.effectAllowed = 'move';
+}
 // показ куда можно поставить
 const showValidDrop = () => {
     let currentDroppable = null;
@@ -122,84 +198,4 @@ document.addEventListener('drop', e => {
         setHorse(e.target)
     }
 });
-
-// --------------------drag&drop with pointer event-----------------------------
-//*********************************************************
-/*
-horse.onpointerdown = (e) => {
-    horse.setPointerCapture(e.pointerId);
-
-    // координаты в начале перемещения
-    const startHorseX = horse.getBoundingClientRect().left,
-        startHorseY = horse.getBoundingClientRect().top;
-    //смещение
-    let shiftX = e.clientX - startHorseX;
-    let shiftY = e.clientY - startHorseY;
-
-    // для отслеживания переноса
-    horse.style.position = 'absolute';
-    horse.style.zIndex = 1000;
-    document.body.append(horse);
-
-    // перенос на координаты c учитом сдвига относительно курсора
-    const moveAt = (pageX, pageY) => {
-        horse.style.left = pageX - shiftX + 'px';
-        horse.style.top = pageY - shiftY + 'px';
-    }
-
-    // Поееехали!
-    moveAt(e.pageX, e.pageY);
-
-    //возврат на место
-    const reMoveHorse = () => {
-        horse.style.left = `${startHorseX}px`;
-        horse.style.top = `${startHorseY}px`;
-    }
-
-    // потенциальная цель переноса, над которой летим сейчас
-    let currentDroppable = null;
-
-    // движение пo drag&drop
-    const horseMove = (e) => {
-        moveAt(e.pageX, e.pageY);
-        // прячем коня чтобы б/доступ к потенц цели
-        horse.hidden = true;
-        let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-        horse.hidden = false;
-        // у потенц. цели класс droppable
-        let droppableBelow = elemBelow?.closest('.droppable');
-        // если clientX/clientY за пределами окна, возврат на исходную
-        if (!elemBelow) {
-            reMoveHorse();
-            document.removeEventListener('pointermove', horseMove);
-        }
-        // подсветка при пролете
-        if (currentDroppable != droppableBelow) {
-            // currentDroppable=null -> за/вылетаем
-            // droppableBelow=null если не над droppable именно сейчас
-            if (currentDroppable) { // "вылет" из droppable (удаляем подсветку)
-                leaveDroppable(currentDroppable);
-            }
-            currentDroppable = droppableBelow;
-            if (currentDroppable) { // "влетаем" в droppable -> подсветка
-                enterDroppable(currentDroppable);
-            }
-        }
-    }
-    // двигаем коня при pointermove
-    document.addEventListener('pointermove', horseMove);
-
-    horse.onpointerup = () => { //отпускаем
-        document.removeEventListener('pointermove', horseMove);
-        horse.onpointerup = null;
-        if(currentDroppable !== null) {
-            setHorse(currentDroppable);
-            leaveDroppable(currentDroppable);
-        } else {
-            reMoveHorse();
-        }
-    };
-};
-// preventDefault for drag&drop
-horse.ondragstart = () => false;
 */

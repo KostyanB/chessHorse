@@ -21,7 +21,7 @@
 * Drag-and-drop;
 * HTML CSS;
 * Возможность масштабировать для других шахматных фигур.
-* 2 версии: через drag/drop события и через события указателя.
+* 2 версии: через события указателя и через drag/drop события (закомментировано)
 
 ***
 Eng
@@ -41,6 +41,7 @@ Demo at [Go horse...](https://kostyanb.github.io/chessHorse/).
 * Highlighting active cells when you click mouse or drag Knight;
 * If you try to move incorrectly or take out of the window - Knight return to last position;
 * By pressing Reset button - return to initial state.
+* 2 versions: via pointer-events or via drag/drop-events.
 
 ## Technology stack
 
