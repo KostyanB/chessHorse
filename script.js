@@ -143,6 +143,10 @@ horse.onpointerdown = (e) => {
         horse.hidden = false;
         // у потенц. цели д/быть класс droppable
         let droppableBelow = elemBelow?.closest('.droppable');
+        if(!elemBelow) { //возврат на позицию при вылете из экрана
+            reMoveHorse();
+            document.removeEventListener('pointermove', handlePos);
+        }
         showDroppable(droppableBelow);
     };
     // получение координат
